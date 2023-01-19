@@ -101,7 +101,6 @@ extern char * readString(char delimitador)
    }
 
    return string;
-
 }
  
 

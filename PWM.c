@@ -4,35 +4,37 @@
  *  Created on: 26/12/2022
  *      Author: Ashley Roxana Reséndiz Sánchez
  */
-#include "lib/include.h"
+ #include "lib/include.h"
 
 //Se trabaja con modulo 0 , generador 0, 1, 2 
 //por lo tanto se puede trabajar con GEN 0: PB7-> PMW1, GEN 1: PB4-> PMW2 Y GEN 2: PE4-> PWM4 de acuerdo a la pág. 1233
 
 extern void Configura_Reg_PWM1(uint16_t freq)
 {
-    /*Se habilita modulo PWM0 pag 354*/
+    //Se habilita modulo PWM0 pag 354
     SYSCTL->RCGCPWM |= (1<<0);
     
-    /*Habilita GPIO Puerto B y E porque se trabaja con gen. 1 mod. 0 pag 340 y pag. 1233 para saber que puertos/pines corresponden a cada modulo de PWM y cada generador*/
+    //Habilita GPIO Puerto B y E porque se trabaja con gen. 1 mod. 0 pag 340 y pag. 1233 para saber que puertos/pines corresponden a cada modulo de PWM y cada generador/
     SYSCTL->RCGCGPIO |= (1<<1)|(1<<4);
     
-    /*Habialitar o desabilitar Divisor  Pag 254*/                                                                  //  frec, tarjeta / frec PWM = cuentas 
+    //Habialitar o desabilitar Divisor  Pag 254/                                                                  //  frec, tarjeta / frec PWM = cuentas 
     SYSCTL->RCC &=~(1<<20); //Se Deshabilita porque salen 40 mil cuentas que caben en los 16 bits del contador del PWM, 20 millinoes/ 5000 = 40 mil cuentas  
                                                     
-    /*Se habilita la función alternativa para PB4 Pag 672*/
-    GPIOB->AFSEL |= (1<<4); //PB4
-    GPIOB->AFSEL |= (1<<7); //PB7
+    //Se habilita la función alternativa para PB4 Pag 672
+    GPIOB->AFSEL |= (1<<4) | (1<<7); //PB4 PB7
     GPIOE->AFSEL |= (1<<4); //PE4
     
-    /*Combinado con la tabla Pag 1351 y el registro PCTL le digo que es pwm Pag 689, por eso se pone el valor de 4 en el pin PB4*/
+    //Combinado con la tabla Pag 1351 y el registro PCTL le digo que es pwm Pag 689, por eso se pone el valor de 4 en el pin PB4
     GPIOB->PCTL |= (GPIOB->PCTL&0x0FF0FFFF) | 0x40040000; // Para PB7 y PB4
     GPIOE->PCTL |= (GPIOE->PCTL&0xFFF0FFFF) | 0x00040000; //Para PE4
 
-    /* para decirle si es digital o no Pag 682*/
+    //Para decirle si es digital o no Pag 682
     GPIOB->DEN |= (1<<4)|(1<<7); 
     GPIOE->DEN |= (1<<4); 
 
+    //Indicar si son Entrada (0) o Salidas (1)
+    GPIOB->DIR |= (1<<4)|(1<<7); 
+    GPIOE->DIR |= (1<<4); 
 
     // Se desactiva generador acorde a tabla 1233 para saber con que gen. se trabaja y pag. 1266 para saber a que bit asignarle el valor
     //    Gen 
@@ -50,8 +52,8 @@ extern void Configura_Reg_PWM1(uint16_t freq)
     PWM0->_1_LOAD = 40000;  
     PWM0->_2_LOAD = 40000; 
     PWM0->_0_CMPB = 16000; //Gen 0 trabaja con comparador B
-    PWM0->_1_CMPA = 16000; //%40 de las 40000 cuentas, Gen 1 trabaja con comparador A por pag. 1248
-    PWM0->_2_CMPA = 16000; //Gen 2 trabaja con comparador B
+    PWM0->_1_CMPA = 200; //%40 de las 40000 cuentas, Gen 1 trabaja con comparador A por pag. 1248
+    PWM0->_2_CMPA = 10000; //Gen 2 trabaja con comparador B
 
     //Habilitar generadores a usar
     PWM0->_0_CTL = (1<<0);
@@ -61,3 +63,8 @@ extern void Configura_Reg_PWM1(uint16_t freq)
     //Se habilita el PWM que se usa PWM1, PWM2 y PWM4 pag. 1247 y 1233
     PWM0->ENABLE = (1<<1)|(1<<2)|(1<<4); 
 }
+
+/*extern void PWM_Intensidad(uint16_t *Result)
+{
+    PWM0->_2_CMPA = 40000-((int)(color_azul*16000)/40); 
+}*/
