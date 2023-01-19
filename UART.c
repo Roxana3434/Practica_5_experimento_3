@@ -53,6 +53,7 @@ extern void Configurar_UART0(void)
 
 }
 
+//Para recibir datos
 extern char readChar(void)
 {
     //UART FR flag pag 911
@@ -64,11 +65,15 @@ extern char readChar(void)
     c = v;
     return c;
 }
+
+//Para enviar dato
 extern void printChar(char c)
 {
     while((UART0->FR & (1<<5)) != 0 );
     UART0->DR = c;
 }
+
+//Enviar datos en cadena
 extern void printString(char* string)
 {
     while(*string)
@@ -77,6 +82,7 @@ extern void printString(char* string)
     }
 }
 
+//Recibir cadena 
 extern char * readString(char delimitador)
 {
 
@@ -97,10 +103,5 @@ extern char * readString(char delimitador)
    return string;
 
 }
-//Experimento 2
-
-//El envio es su nombre  (rave) 
-
-// invertirlo y regresarlo con numeros consecutivos
-// entre letras (e1v2a3r) 
+ 
 
